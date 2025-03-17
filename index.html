@@ -1,70 +1,43 @@
-import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-
-export default function App() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    document: null,
-  });
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleFileChange = (e) => {
-    setFormData({ ...formData, document: e.target.files[0] });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formDataToSend = new FormData();
-    formDataToSend.append("name", formData.name);
-    formDataToSend.append("email", formData.email);
-    if (formData.document) {
-      formDataToSend.append("document", formData.document);
-    }
-
-    // Enviar los datos a n8n (reemplaza la URL con la de tu flujo n8n)
-    await fetch("https://tu-servidor-n8n/webhook", {
-      method: "POST",
-      body: formDataToSend,
-    });
-    alert("Formulario enviado correctamente");
-  };
-
-  return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <Card className="w-full max-w-md p-6 shadow-lg">
-        <CardContent>
-          <h2 className="text-xl font-bold mb-4">Solicitud de Análisis</h2>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              type="text"
-              name="name"
-              placeholder="Nombre"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-            <Input
-              type="email"
-              name="email"
-              placeholder="Correo Electrónico"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-            <Input type="file" onChange={handleFileChange} />
-            <Button type="submit" className="w-full">
-              Enviar
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Análisis</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="flex justify-center items-center min-h-screen bg-gray-100">
+    <div class="w-full max-w-md p-6 bg-white shadow-lg rounded-lg">
+        <h2 class="text-xl font-bold mb-4">Solicitud de Análisis</h2>
+        <form id="analysisForm" class="space-y-4">
+            <input type="text" name="name" id="name" placeholder="Nombre" class="w-full p-2 border border-gray-300 rounded" required>
+            <input type="email" name="email" id="email" placeholder="Correo Electrónico" class="w-full p-2 border border-gray-300 rounded" required>
+            <input type="file" id="document" class="w-full p-2 border border-gray-300 rounded">
+            <button type="submit" class="w-full bg-blue-500 text-white p-2 rounded">Enviar</button>
+        </form>
     </div>
-  );
-}
+
+    <script>
+        document.getElementById("analysisForm").addEventListener("submit", async function(event) {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append("name", document.getElementById("name").value);
+            formData.append("email", document.getElementById("email").value);
+            const fileInput = document.getElementById("document");
+            if (fileInput.files.length > 0) {
+                formData.append("document", fileInput.files[0]);
+            }
+
+            try {
+                await fetch("https://tu-servidor-n8n/webhook", {
+                    method: "POST",
+                    body: formData
+                });
+                alert("Formulario enviado correctamente");
+            } catch (error) {
+                alert("Error al enviar el formulario");
+            }
+        });
+    </script>
+</body>
+</html>
